@@ -5,6 +5,7 @@ from .forms import ReviewForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import AuthenticationForm
 from . import models
+from django.contrib.auth import login ,logout ,authenticate
 
 # Create your views here.
 def home(request):
@@ -24,14 +25,19 @@ def signup(request):
 def signin(request):
     if request.method == 'POST':
         form = AuthenticationForm(data = request.POST)
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username = username,password = password)
         if form.is_valid():
+            
             return redirect(reverse('authentications:sucess'))
     else:
         form = AuthenticationForm()
     return render(request,'authentications/signin.html',context = {'form': form})
 
 def signout(request):
-    pass
+    logout(request)
+    return redirect(reverse('authentications:home'))
 
 def sucess(request):
     if request.method == 'POST':
@@ -51,8 +57,14 @@ def detail(request):
 def adminlogin(request):
     if request.method == 'POST':
         form = AuthenticationForm(data = request.POST)
-        if form.is_valid() and form.is_staff():
-            return redirect(reverse('authentications:sucess'))
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username = username,password = password)
+        if form.is_valid() and user.is_staff:
+            login(request,user)
+            return redirect(reverse('authentications:detail'))
+        else:
+            return HttpResponse("You are not authorized")
     else:
         form = AuthenticationForm()
     return render(request,'authentications/signin.html',context = {'form': form})
