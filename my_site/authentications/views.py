@@ -28,9 +28,31 @@ def signin(request):
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(username = username,password = password)
-        if form.is_valid():
-            
-            return redirect(reverse('authentications:sucess'))
+        if form.is_valid() and user.is_staff:
+            login(request,user)
+            return redirect(reverse('authentications:detail'))
+        elif form.is_valid():
+            login(request,user)
+            try:
+                obj = models.Personal_details.objects.get(username = username)
+                firstname = obj.first_name
+                lastname = obj.last_name
+                email = obj.email
+                phone_number = obj.phone_number
+                dob = obj.date_of_birth
+                gender = obj.gender
+                context = {'username':username,
+                            'firstname':firstname,
+                            'lastname':lastname,
+                            'email':email,
+                            'phone_number':phone_number,
+                            'dob':dob,
+                            'gender':gender
+                }
+
+                return render(request,'authentications/single_detail.html',context)
+            except:
+                return redirect(reverse('authentications:sucess'))
     else:
         form = AuthenticationForm()
     return render(request,'authentications/signin.html',context = {'form': form})
@@ -44,7 +66,7 @@ def sucess(request):
         form = ReviewForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect(reverse('authentications:detail'))
+            return HttpResponse('Your details have been saved!')
     else:
         form = ReviewForm()
     return render(request,'authentications/sucess.html',context = {'form':form})
@@ -54,20 +76,8 @@ def detail(request):
     context = {'all_detail': all_detail}
     return render(request,'authentications/details.html',context = context)
 
-def adminlogin(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(data = request.POST)
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(username = username,password = password)
-        if form.is_valid() and user.is_staff:
-            login(request,user)
-            return redirect(reverse('authentications:detail'))
-        else:
-            return HttpResponse("You are not authorized")
-    else:
-        form = AuthenticationForm()
-    return render(request,'authentications/signin.html',context = {'form': form})
+def single_detail(request):
+    pass
 
 
 

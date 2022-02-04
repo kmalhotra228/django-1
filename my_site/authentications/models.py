@@ -16,11 +16,11 @@ class Joinee(models.Model):
     password = models.CharField(max_length=50)
 
 class Personal_details(models.Model):
-    username = models.CharField(max_length = 30)
+    username = models.CharField(max_length = 30 ,unique = True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
-    email = models.EmailField(max_length=100)
-    phone_number = models.IntegerField()
+    email = models.EmailField(verbose_name = "email",max_length=100)
+    phone_number = models.CharField(max_length = 10)
     date_of_birth = models.DateField()
     Gender_choices = (
         ("M","Male"),
